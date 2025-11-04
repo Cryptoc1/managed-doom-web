@@ -1,0 +1,32 @@
+{
+  "name": "managed-doom-app-ui",
+  "version": "1.0.0",
+  "author": "cryptoc1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsc --noEmit && node esbuild.config.js --watch"
+  },
+  "browserslist": [
+    "defaults and not dead",
+    "fully supports wasm",
+    "fully supports es6-module"
+  ],
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.16",
+    "autoprefixer": "10.4.21",
+    "caniuse-lite": "1.0.30001753",
+    "cross-env": "10.1.0",
+    "cssnano": "7.1.2",
+    "esbuild": "0.25.12",
+    "esbuild-plugin-copy": "2.1.1",
+    "postcss": "8.5.6",
+    "postcss-cli": "11.0.1",
+    "postcss-prepend-imports": "1.0.1",
+    "postcss-preset-env": "10.4.0",
+    "tailwindcss": "4.1.16",
+    "typescript": "5.9.3",
+    "yargs": "18.0.0"
+  },
+  "dependencies": {}
+}

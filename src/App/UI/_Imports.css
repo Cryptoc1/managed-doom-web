@@ -1,0 +1,23 @@
+@import 'tailwindcss';
+
+@theme {
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-mono--font-optical-sizing: auto;
+
+    --font-sans: 'Nunito', sans-serif;
+    --font-sans--font-optical-sizing: auto;
+}
+
+* {
+    @apply antialiased;
+    scrollbar-width: thin;
+}
+
+html {
+    @apply bg-none bg-transparent z-0;
+}
+
+body {
+    @apply bg-transparent font-normal font-sans leading-normal text-base text-gray-300 tracking-normal z-0;
+    @apply grid grid-flow-row max-h-dvh max-w-screen min-h-dvh;
+}

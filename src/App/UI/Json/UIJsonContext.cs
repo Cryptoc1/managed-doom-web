@@ -1,0 +1,8 @@
+using System.Text.Json.Serialization;
+
+namespace ManagedDoom.App.UI.Json;
+
+[JsonSerializable( typeof( UIVersion ) )]
+
+[JsonSourceGenerationOptions( DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, DictionaryKeyPolicy = JsonKnownNamingPolicy.CamelCase, PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, WriteIndented = false )]
+public sealed partial class UIJsonContext : JsonSerializerContext;
