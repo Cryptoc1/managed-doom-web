@@ -1,4 +1,4 @@
-using ManagedDoom.App.UI.Components.Routing.Layout;
+using ManagedDoom.App.UI.Components.Layout;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Rendering;
 

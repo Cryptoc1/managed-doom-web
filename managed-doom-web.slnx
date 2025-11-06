@@ -1,5 +1,7 @@
 <Solution>
-  <Folder Name="/src/" />
+  <Folder Name="/src/">
+    <Project Path="src/ManagedDoom/ManagedDoom.csproj" />
+  </Folder>
   <Folder Name="/src/App/">
     <Project Path="src/App/UI/ManagedDoom.App.UI.csproj" />
     <Project Path="src/App/Web/ManagedDoom.App.Web.csproj" />

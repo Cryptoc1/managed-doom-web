@@ -2,7 +2,8 @@
 
   <PropertyGroup>
     <OptimizationPreference>Speed</OptimizationPreference>
-    <TrimMode>partial</TrimMode>
+    <PublishReadyToRun>true</PublishReadyToRun>
+    <TrimMode>full</TrimMode>
     <UserSecretsId>MANAGED-DOOM-WEB-e60059f3-c042-4917-975d-ecd141484e3e</UserSecretsId>
   </PropertyGroup>
 

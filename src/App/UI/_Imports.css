@@ -1,6 +1,12 @@
 @import 'tailwindcss';
 
 @theme {
+    --font-jacquard: 'Jacquard 24', 'IBM Plex Mono', monospace;
+    --font-jacquard--font-optical-sizing: auto;
+
+    --font-jersey: 'Jersey 10', 'IBM Plex Mono', monospace;
+    --font-jersey--font-optical-sizing: auto;
+
     --font-mono: 'IBM Plex Mono', monospace;
     --font-mono--font-optical-sizing: auto;
 

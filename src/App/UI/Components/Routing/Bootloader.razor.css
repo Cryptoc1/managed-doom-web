@@ -1,0 +1,7 @@
+::deep #loading-bar {
+    width: var(--blazor-load-percentage, 0%);
+}
+
+::deep #loading-bar::before {
+    content: '[' var(--blazor-load-percentage-text, '0%') '] ';
+}

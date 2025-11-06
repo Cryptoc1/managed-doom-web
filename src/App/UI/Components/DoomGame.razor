@@ -1,0 +1,38 @@
+@using ManagedDoom.App.UI.Game
+@using SkiaSharp
+@using SkiaSharp.Views.Blazor
+
+@implements IDisposable
+
+<SKGLView class="h-screen w-screen" EnableRenderLoop="@rendering" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
+
+@code {
+
+    private DoomShim? doom;
+    private bool rendering = true;
+
+    public void Dispose()
+    {
+        if (doom is not null)
+        {
+            doom?.Dispose();
+            doom = default;
+        }
+    }
+
+    private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        doom ??= new();
+        if (!doom.OnPaint(e))
+        {
+            rendering = false;
+            StateHasChanged();
+
+            doom.Dispose();
+            doom = default;
+        }
+    }
+
+}

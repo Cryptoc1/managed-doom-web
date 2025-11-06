@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <Deterministic>true</Deterministic>
+    <EnableNETAnalyzers>false</EnableNETAnalyzers>
+    <EnableUnsafeBinaryFormatterSerialization>false</EnableUnsafeBinaryFormatterSerialization>
+    <EventSourceSupport>false</EventSourceSupport>
+    <Features>strict</Features>
+    <InvariantGlobalization>true</InvariantGlobalization>
+    <Nullable>disable</Nullable>
+    <OptimizationPreference>Speed</OptimizationPreference>
+    <RunCodeAnalysis>false</RunCodeAnalysis>
+    <RunAnalyzers>false</RunAnalyzers>
+    <UseSystemResourceKeys Condition=" '$(Configuration)' == 'Release' ">true</UseSystemResourceKeys>
+
+    <ManagedDoomPath>..\..\modules\managed-doom\ManagedDoom\src\</ManagedDoomPath>
+    <ManagedDoomExcludes>
+      $(ManagedDoomPath)Silk\**\*.cs;
+      $(ManagedDoomPath)Video\Renderer.cs;
+    </ManagedDoomExcludes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="$(ManagedDoomPath)**\*.cs" Exclude="$(ManagedDoomExcludes)">
+      <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
+    </Compile>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,78 @@
+﻿@inject IServiceProvider Services
+
+@if (state is not BootloaderState.Loaded)
+{
+    <div class="fixed bg-zinc-950 h-screen p-2 text-base text-gray-200 top-0 w-screen z-100">
+        <div class="font-medium font-jacquard">
+            <h1 class="text-9xl">webOS</h1>
+            <h2 class="-mt-4 text-7xl">v@(UIVersion.Current)</h2>
+        </div>
+
+        <div class="font-jersey text-5xl w-full">
+            <p class="truncate">[SSR] Prerendering is supported.</p>
+            @if (state is BootloaderState.WaitingForWasm)
+            {
+                <p id="loading-bar" class="bg-gray-200 text-zinc-950 transition truncate"> Waiting for WASM Runtime...</p>
+            }
+            else
+            {
+                <p class="truncate">[WASM] Loaded WASM Runtime </p>
+                <p class="truncate">[OS] Starting webOS... </p>
+                @foreach (var log in logs)
+                {
+                    <p class="truncate">[@log.Source] @log.Message</p>
+                }
+            }
+        </div>
+    </div>
+}
+else
+{
+    @ChildContent
+}
+
+@code {
+
+    private IList<(string Source, string Message)> logs = [];
+    private BootloaderState state;
+
+    [EditorRequired]
+    [Parameter]
+    public RenderFragment ChildContent { get; init; } = default!;
+
+    [Parameter]
+    public EventCallback OnLoaded { get; init; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            state = BootloaderState.Loading;
+            StateHasChanged();
+
+            var context = new BootloaderContext(OnLog, Services);
+            await Task.WhenAll([.. Services.GetServices<IBootloader>().Select(loader => loader.OnBooting(context)), Task.Delay(275)]);
+
+            context.Log("Welcome to webOS.");
+            await Task.Delay(850);
+
+            state = BootloaderState.Loaded;
+            StateHasChanged();
+
+            await OnLoaded.InvokeAsync();
+        }
+    }
+
+    private void OnLog(string source, string message)
+    {
+        logs.Add((source, message));
+        StateHasChanged();
+    }
+
+    private enum BootloaderState : byte
+    {
+        WaitingForWasm,
+        Loading,
+        Loaded
+    }
+}
