@@ -12,6 +12,6 @@ public static class UIServiceExtensions
     {
         ArgumentNullException.ThrowIfNull( services );
 
-        return services.AddScoped<CanvasInterop>();
+        return services.AddScoped<UserInputInterop>();
     }
 }

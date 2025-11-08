@@ -1,4 +1,5 @@
 using System.Runtime.ExceptionServices;
+using ManagedDoom.App.UI.Interop;
 using SkiaSharp.Views.Blazor;
 
 namespace ManagedDoom.App.UI.Game;
@@ -6,10 +7,11 @@ namespace ManagedDoom.App.UI.Game;
 internal sealed class DoomShim : IDisposable
 {
     private readonly Config config;
-    private GameContent? content;
-    private Doom? doom;
+    private GameContent content;
+    private Doom doom;
     private FrameState frame;
-    private VideoShim? video;
+    private UserInputShim userInput;
+    private VideoShim video;
 
     public DoomShim( )
     {
@@ -32,7 +34,7 @@ internal sealed class DoomShim : IDisposable
             key_use = KeyBinding.Parse( "space,mouse2" ),
 
             mouse_disableyaxis = false,
-            mouse_sensitivity = 8,
+            mouse_sensitivity = 7,
 
             video_displaymessage = true,
             video_fpsscale = 1,
@@ -46,9 +48,10 @@ internal sealed class DoomShim : IDisposable
         {
             var args = new CommandLineArgs( [ "iwad", "DOOM1.WAD" ] );
             content = new( args );
+            userInput = new( config );
             video = new( config, content );
 
-            doom = new( args, config, content, video, default, default, default );
+            doom = new( args, config, content, video, default, default, userInput );
             frame = new( args.timedemo.Present ? 1 : config.video_fpsscale );
         }
         catch( Exception e )
@@ -67,7 +70,14 @@ internal sealed class DoomShim : IDisposable
 
         if( video is not null )
         {
+            video.Dispose();
             video = default!;
+        }
+
+        if( userInput is not null )
+        {
+            userInput.Dispose();
+            userInput = default!;
         }
 
         if( content is not null )
@@ -79,21 +89,21 @@ internal sealed class DoomShim : IDisposable
         frame = default!;
     }
 
-    public bool OnPaint( SKPaintGLSurfaceEventArgs e )
+    public bool Update( SKPaintGLSurfaceEventArgs e, UserInputReference input )
     {
         ArgumentNullException.ThrowIfNull( e );
 
+        UpdateConfig( config, e );
+        UpdateInput( doom, userInput, input );
+
         if( frame.Update() )
         {
-            UpdateConfig( config, e );
-
-            var result = doom!.Update();
-            if( result is UpdateResult.Completed )
+            if( doom.Update() is UpdateResult.Completed )
             {
                 return false;
             }
 
-            video!.Render(
+            video.Render(
                 e.Surface.Canvas,
                 doom!,
                 frame.Value() );
@@ -106,6 +116,60 @@ internal sealed class DoomShim : IDisposable
     {
         config.video_screenheight = e.Info.Height;
         config.video_screenwidth = e.Info.Width;
+    }
+
+    private static void UpdateInput( Doom doom, UserInputShim shim, UserInputReference input )
+    {
+        var snapshot = input.GetSnapshot();
+
+        shim.MoveMouse( snapshot.Delta );
+        foreach( var (code, key) in UserInputShim.KeyMap )
+        {
+            if( snapshot.Pressed.Contains( code ) ) PressKey( key );
+            if( snapshot.Released.Contains( code ) ) ReleaseKey( key );
+        }
+
+        foreach( var (code, button) in UserInputShim.ButtonMap )
+        {
+            if( snapshot.Pressed.Contains( code ) ) PressButton( button );
+            if( snapshot.Released.Contains( code ) ) ReleaseButton( button );
+        }
+
+        void PressButton( DoomMouseButton button )
+        {
+            if( button is not DoomMouseButton.Unknown )
+            {
+                shim.PressedButtons.Add( button );
+                doom.PostEvent( new( EventType.Mouse, DoomKey.Unknown ) );
+            }
+        }
+
+        void PressKey( DoomKey key )
+        {
+            if( key is not DoomKey.Unknown )
+            {
+                shim.PressedKeys.Add( key );
+                doom.PostEvent( new( EventType.KeyDown, key ) );
+            }
+        }
+
+        void ReleaseButton( DoomMouseButton button )
+        {
+            if( button is not DoomMouseButton.Unknown )
+            {
+                shim.PressedButtons.Remove( button );
+                doom.PostEvent( new( EventType.Mouse, DoomKey.Unknown ) );
+            }
+        }
+
+        void ReleaseKey( DoomKey key )
+        {
+            if( key is not DoomKey.Unknown )
+            {
+                shim.PressedKeys.Remove( key );
+                doom.PostEvent( new( EventType.KeyUp, key ) );
+            }
+        }
     }
 
     private struct FrameState( int scale = 1 )

@@ -2,36 +2,61 @@
 @using SkiaSharp
 @using SkiaSharp.Views.Blazor
 
-@implements IDisposable
+@implements IAsyncDisposable
 
-<SKGLView class="h-screen w-screen" EnableRenderLoop="@rendering" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
+@inject UserInputInterop UserInput
+
+<div @ref="@container" class="aspect-auto h-full max-h-screen max-w-screen w-full" tabindex="0" @onclick="@OnContainerClick">
+    <SKGLView class="h-full w-full" EnableRenderLoop="@rendering" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
+</div>
 
 @code {
 
+    private ElementReference container;
     private DoomShim? doom;
+    private UserInputReference input;
     private bool rendering = true;
 
-    public void Dispose()
+    private static void DestroyDoom(ref DoomShim? doom)
     {
         if (doom is not null)
         {
-            doom?.Dispose();
+            doom.Dispose();
             doom = default;
         }
     }
+
+    public async ValueTask DisposeAsync()
+    {
+        DestroyDoom(ref doom);
+        if (input is not null)
+        {
+            await input.DisposeAsync();
+            input = default!;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            input = await UserInput.CreateUserInput(container);
+        }
+    }
+
+    private async Task OnContainerClick() => await input.RequestLock();
 
     private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
 
         doom ??= new();
-        if (!doom.OnPaint(e))
+        if (!doom.Update(e, input))
         {
             rendering = false;
             StateHasChanged();
 
-            doom.Dispose();
-            doom = default;
+            DestroyDoom(ref doom);
         }
     }
 
