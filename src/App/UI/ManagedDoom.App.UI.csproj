@@ -17,6 +17,12 @@
     <WasmEnableWebcil>true</WasmEnableWebcil>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(EnableBrowserProfiler)' == 'true' ">
+    <WasmProfilers>browser</WasmProfilers>
+    <WasmNativeStrip>false</WasmNativeStrip>
+    <WasmNativeDebugSymbols>true</WasmNativeDebugSymbols>
+  </PropertyGroup>
+
   <ItemGroup>
     <SupportedPlatform Include="browser" />
 
@@ -26,10 +32,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="$(AspNetCoreVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="9.10.0" />
+    <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="$(AspNetCoreVersion)" />
     <PackageReference Include="SkiaSharp.Views.Blazor" Version="3.119.1" />
-    <PackageReference Include="System.Text.Json" Version="$(AspNetCoreVersion)" />
   </ItemGroup>
 
   <ItemGroup>

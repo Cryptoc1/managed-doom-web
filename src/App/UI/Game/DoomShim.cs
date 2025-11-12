@@ -41,7 +41,9 @@ internal sealed class DoomShim : IDisposable
             video_fullscreen = true,
             video_gamescreensize = 7,
             video_gammacorrection = 2,
+
             video_highresolution = false,
+            // video_highresolution = true,
         };
 
         try

@@ -1,4 +1,4 @@
-export function createUserInput(element: HTMLElement, context: UserInputContext) {
+export function createUserInput(element: HTMLElement) {
   const state: UserInputState = {
     delta: { x: 0, y: 0 },
     now: 0,
@@ -14,11 +14,6 @@ export function createUserInput(element: HTMLElement, context: UserInputContext)
 
     clearState(state);
     state.controller = createAbortController(() => {
-      if (state.frameId) {
-        window.cancelAnimationFrame(state.frameId);
-        delete state.frameId;
-      }
-
       if (document.pointerLockElement === element) {
         document.exitPointerLock();
       }
@@ -96,8 +91,6 @@ export function createUserInput(element: HTMLElement, context: UserInputContext)
       passive: false,
       signal: state.controller.signal
     });
-
-    return onFrameRequested(context, state);
   };
 
   document.addEventListener(
@@ -106,6 +99,10 @@ export function createUserInput(element: HTMLElement, context: UserInputContext)
     { passive: true });
 
   return {
+    capture() {
+      return captureSnapshot(performance.now(), state);
+    },
+
     async requestLock() {
       if (document.pointerLockElement === element) {
         return;
@@ -139,7 +136,7 @@ const captureSnapshot = (now: DOMHighResTimeStamp, state: UserInputState): UserI
 
   clearState(state, now);
   return snapshot;
-};
+}
 
 const clearState = (state: UserInputState, now?: DOMHighResTimeStamp) => {
   state.delta = {
@@ -150,7 +147,7 @@ const clearState = (state: UserInputState, now?: DOMHighResTimeStamp) => {
   state.now = now ?? 0;
   state.pressed.clear();
   state.released.clear();
-};
+}
 
 const createAbortController = (onAbort: () => void): AbortController => {
   const controller = new AbortController();
@@ -160,27 +157,6 @@ const createAbortController = (onAbort: () => void): AbortController => {
     { passive: true });
 
   return controller;
-};
-
-const onFrameRequested = (context: UserInputContext, state: UserInputState) => {
-  state.frameId = window.requestAnimationFrame((now: DOMHighResTimeStamp) => {
-    if (state.controller?.signal.aborted) {
-      return;
-    }
-
-    const snapshot = captureSnapshot(now, state);
-    context.invokeMethod('OnSnapshot', snapshot);
-
-    return onFrameRequested(context, state);
-  });
-};
-
-type UserInputContext = {
-  invokeMethod<K extends keyof UserInputContextMethods>(methodName: K, arg?: UserInputContextMethods[K]): void;
-}
-
-type UserInputContextMethods = {
-  'OnSnapshot': UserInputSnapshot;
 }
 
 type UserInputSnapshot = {
@@ -193,15 +169,7 @@ type UserInputSnapshot = {
 type UserInputState = {
   controller?: AbortController;
   delta: { x: number; y: number; };
-  frameId?: number;
   now: DOMHighResTimeStamp;
-  // queue: Array<{
-  //   code: string;
-  //   delta?: { x: number, y: number },
-  //   type: InputEventType
-  // }>;
   pressed: Set<string>;
   released: Set<string>;
 }
-
-type InputEventType = 'keydown' | 'keyup' | 'mousedown' | 'mousemove' | 'mouseup';
