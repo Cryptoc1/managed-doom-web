@@ -45,7 +45,7 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: build
-        run: dotnet build src/App/Web/Wadio.App.Web.csproj --no-restore
+        run: dotnet build src/App/Web/ManagedDoom.App.Web.csproj --no-restore
 
   publish:
     if: github.event_name == 'release' && github.event.action == 'published'
@@ -83,18 +83,18 @@ jobs:
         run: dotnet restore --locked-mode
 
       - name: publish
-        run: dotnet publish src/App/Web/Wadio.App.Web.csproj -o wadio -c Release -r linux-x64 --self-contained --no-restore && zip -r wadio-${{ github.event.release.tag_name }}.zip wadio
+        run: dotnet publish src/App/Web/ManagedDoom.App.Web.csproj -o managed-doom-web -c Release -r linux-x64 --self-contained --no-restore && zip -r managed-doom-web-${{ github.event.release.tag_name }}.zip managed-doom-web
 
       - name: upload artifact
         uses: actions/upload-artifact@v5
         with:
-          name: wadio
-          path: wadio
+          name: managed-doom-web
+          path: managed-doom-web
 
       - name: update release
         uses: softprops/action-gh-release@v2
         with:
-          files: wadio-${{ github.event.release.tag_name }}.zip
+          files: managed-doom-web-${{ github.event.release.tag_name }}.zip
 
   deploy:
     concurrency: live
@@ -109,20 +109,20 @@ jobs:
       - name: download artifact
         uses: actions/download-artifact@v6
         with:
-          name: wadio
-          path: wadio
+          name: managed-doom-web
+          path: managed-doom-web
 
       - name: az login
         uses: azure/login@v2
         with:
-          creds: ${{ secrets.WADIO_DEPLOY_RBAC }}
+          creds: ${{ secrets.MANAGED_DOOM_DEPLOY_RBAC }}
 
       - name: deploy app service
         uses: azure/webapps-deploy@v3
         with:
-          app-name: wadio
+          app-name: managed-doom
           clean: true
-          package: wadio
+          package: managed-doom-web
           restart: true
 
       - name: az logout
