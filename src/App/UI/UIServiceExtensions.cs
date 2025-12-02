@@ -12,6 +12,7 @@ public static class UIServiceExtensions
     {
         ArgumentNullException.ThrowIfNull( services );
 
-        return services.AddScoped<UserInputInterop>();
+        return services.AddScoped<DialogInterop>()
+            .AddScoped<UserInputInterop>();
     }
 }

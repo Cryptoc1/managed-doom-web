@@ -1,0 +1,42 @@
+<Dialog @ref="@dialog">
+    <EditForm Model="@form" @onreset="@(() => dialog.Close())" OnValidSubmit="@OnSubmit">
+        <FormValidator />
+
+        <InputTextArea class="font-mono w-full" @bind-Value="@form.Value" rows="18" />
+
+        <div class="font-sm italic text-center text-gray-400 w-full">Saving settings will reset the game.</div>
+
+        <div class="flex flex-row items-center justify-end mt-2 space-x-2.5">
+            <button type="reset">Close</button>
+            <button type="submit">Submit</button>
+        </div>
+    </EditForm>
+</Dialog>
+
+@code {
+
+    private Dialog dialog;
+    private SettingsForm form = new();
+
+    [Parameter]
+    public EventCallback OnSave { get; set; }
+
+    private async Task OnSubmit()
+    {
+        await File.WriteAllTextAsync("doom.cfg", form.Value);
+
+        await OnSave.InvokeAsync();
+        await dialog.Close();
+    }
+
+    public async Task Open()
+    {
+        form = new()
+        {
+            Value = await File.ReadAllTextAsync("doom.cfg")
+        };
+
+        await dialog.Open();
+    }
+
+}

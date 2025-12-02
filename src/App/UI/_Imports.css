@@ -1,18 +1,11 @@
 @import 'tailwindcss';
 
-@theme {
-    --font-jacquard: 'Jacquard 24', 'IBM Plex Mono', monospace;
-    --font-jacquard--font-optical-sizing: auto;
+@import './_Imports.Theme.css';
+@import './_Imports.Utilities.css';
 
-    --font-jersey: 'Jersey 10', 'IBM Plex Mono', monospace;
-    --font-jersey--font-optical-sizing: auto;
-
-    --font-mono: 'IBM Plex Mono', monospace;
-    --font-mono--font-optical-sizing: auto;
-
-    --font-sans: 'Nunito', sans-serif;
-    --font-sans--font-optical-sizing: auto;
-}
+@import './_Imports.Button.css';
+@import './_Imports.Forms.css';
+@import './_Imports.Icon.css';
 
 * {
     @apply antialiased;
@@ -26,4 +19,8 @@ html {
 body {
     @apply bg-transparent font-normal font-sans leading-normal text-base text-gray-300 tracking-normal z-0;
     @apply grid grid-flow-row max-h-dvh max-w-screen min-h-dvh;
+}
+
+hr {
+    @apply bg-accent/20 border-gray-300/15 border-t-2 rounded-sm shadow-2xs;
 }

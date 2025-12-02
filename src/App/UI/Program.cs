@@ -10,9 +10,10 @@ builder.Logging.SetMinimumLevel( builder.HostEnvironment.IsDevelopment()
 
 builder.Services.AddManagedDoomUI();
 
+builder.Services.AddTransient<IBootloader, ConfigBootloader>();
 builder.Services.AddHttpClient<IBootloader, WadBootloader>(
-    http => http.BaseAddress = new( builder.HostEnvironment.BaseAddress ) )
-    .AddStandardResilienceHandler();
+        http => http.BaseAddress = new( builder.HostEnvironment.BaseAddress ) )
+        .AddStandardResilienceHandler();
 
 await using var app = builder.Build();
 await app.RunAsync();

@@ -6,12 +6,22 @@
 
 @inject UserInputInterop UserInput
 
-<div @ref="@container" class="aspect-auto bg-zinc-950 h-full max-h-screen max-w-screen w-full" tabindex="0" @onclick="@OnContainerClick">
-    <SKGLView class="h-full w-full" EnableRenderLoop="@rendering" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
+<div @ref="@container" class="aspect-auto bg-zinc-950 h-full max-h-screen max-w-screen w-full" tabindex="0">
+    <div class="absolute flex flex-row p-2.5 right-0">
+        <button class="icon" @onclick="@(() => settings.Open())">
+            <Icon Name="@IconName.Settings" Size="@TextSize.ExtraLarge2" />
+        </button>
+    </div>
+
+    <SKGLView class="h-full w-full" EnableRenderLoop="@rendering" IgnorePixelScaling="true" OnPaintSurface="@OnPaintSurface" @onclick="@OnSurfaceClick" />
 </div>
+
+<SettingsDialog @ref="@settings" OnSave="@OnConfigSave" />
 
 @code {
 
+    private Config? config;
+    private SettingsDialog settings;
     private ElementReference container;
     private DoomShim? doom;
     private UserInputReference input;
@@ -29,6 +39,13 @@
     public async ValueTask DisposeAsync()
     {
         DestroyDoom(ref doom);
+
+        if (config is not null)
+        {
+            config.Save("doom.cfg");
+            config = default;
+        }
+
         if (input is not null)
         {
             await input.DisposeAsync();
@@ -44,13 +61,24 @@
         }
     }
 
-    private async Task OnContainerClick() => await input.RequestLock();
+    private void OnConfigSave()
+    {
+        rendering = false;
+        StateHasChanged();
+
+        DestroyDoom(ref doom);
+        config = default;
+
+        rendering = true;
+    }
+
+    private async Task OnSurfaceClick() => await input.RequestLock();
 
     private void OnPaintSurface(SKPaintGLSurfaceEventArgs e)
     {
         ArgumentNullException.ThrowIfNull(e);
 
-        doom ??= new();
+        doom ??= new(config ??= new("doom.cfg"));
         if (!doom.Update(e, input))
         {
             rendering = false;
