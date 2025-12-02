@@ -30,10 +30,6 @@
 
   <!-- Git Versioning + Metadata -->
   <PropertyGroup>
-    <MinVerSkip>true</MinVerSkip>
-  </PropertyGroup>
-
-  <PropertyGroup>
     <MinVerDefaultPreReleaseIdentifiers>rc</MinVerDefaultPreReleaseIdentifiers>
     <MinVerMinimumMajorMinor>1.0</MinVerMinimumMajorMinor>
     <MinVerTagPrefix>v</MinVerTagPrefix>

@@ -6,7 +6,7 @@
 
 @inject UserInputInterop UserInput
 
-<div @ref="@container" class="aspect-auto h-full max-h-screen max-w-screen w-full" tabindex="0" @onclick="@OnContainerClick">
+<div @ref="@container" class="aspect-auto bg-zinc-950 h-full max-h-screen max-w-screen w-full" tabindex="0" @onclick="@OnContainerClick">
     <SKGLView class="h-full w-full" EnableRenderLoop="@rendering" IgnorePixelScaling="true" OnPaintSurface="OnPaintSurface" />
 </div>
 
